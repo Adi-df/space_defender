@@ -1,7 +1,7 @@
 use std::{collections::HashMap, ops::Deref};
 
 use hecs::World;
-use macroquad::prelude::Color;
+use macroquad::prelude::{draw_rectangle, Color};
 
 use super::physics::{Position, Size};
 
@@ -22,7 +22,7 @@ impl MapColor {
     pub fn from_vec(vec: Vec<(char, Color)>) -> Self {
         let mut map = HashMap::new();
         vec.into_iter().for_each(|(char, color)| {
-            map.insert(char, color).unwrap();
+            map.insert(char, color);
         });
         Self(map)
     }
@@ -64,5 +64,39 @@ impl Deref for Map {
 
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+
+// Map renderer system
+pub fn map_renderer_system(world: &mut World) {
+    for (_, (renderer, pos, size)) in world.query_mut::<(&MapRenderer, &Position, &Size)>() {
+        let max_size = (
+            renderer
+                .0
+                .iter()
+                .fold(0, |f, a| if a.len() > f { a.len() } else { f }) as f32,
+            renderer.0.len() as f32,
+        );
+        let cell_size = (size.0 / max_size.0, size.1 / max_size.1);
+
+        renderer
+            .0
+            .iter()
+            .enumerate()
+            .flat_map(|(y, s)| {
+                s.chars()
+                    .enumerate()
+                    .map(move |(x, c)| (x.clone(), y.clone(), c))
+            })
+            .map(|(x, y, c)| (x as f32, y as f32, renderer.1.get(&c).unwrap().clone()))
+            .for_each(|(x, y, c)| {
+                draw_rectangle(
+                    pos.0 + x * cell_size.0,
+                    pos.1 + y * cell_size.1,
+                    cell_size.0,
+                    cell_size.1,
+                    c,
+                )
+            });
     }
 }

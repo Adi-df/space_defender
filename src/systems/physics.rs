@@ -108,3 +108,10 @@ impl SubAssign<Velocity> for Position {
         self.1 -= rhs.1;
     }
 }
+
+// Velocity
+pub fn velocity_system(world: &mut World) {
+    for (_, (pos, vel)) in world.query_mut::<(&mut Position, &Velocity)>() {
+        *pos += vel.clone();
+    }
+}

@@ -1,4 +1,5 @@
 // Renderers
+pub mod animated_map_renderer;
 pub mod map_renderer;
 pub mod rect_renderer;
 

@@ -6,5 +6,6 @@ pub mod rect_renderer;
 // Others
 pub mod bullet;
 pub mod fire_control;
+pub mod path_follower;
 pub mod physics;
 pub mod player_control;

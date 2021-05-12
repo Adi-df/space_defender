@@ -1,5 +1,5 @@
 use hecs::World;
-use macroquad::prelude::{Color, draw_rectangle};
+use macroquad::prelude::{draw_rectangle, Color};
 
 use super::physics::{Position, Size};
 

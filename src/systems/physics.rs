@@ -2,11 +2,11 @@ use std::ops::{Add, AddAssign, Sub, SubAssign};
 
 use hecs::World;
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Position(f32, f32);
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Size(f32, f32);
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Velocity(f32, f32);
 
 impl Position {
@@ -24,7 +24,6 @@ impl Velocity {
         Self(vx, vy)
     }
 }
-
 
 // Math
 impl Add<Position> for Position {

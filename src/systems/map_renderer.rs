@@ -5,8 +5,11 @@ use macroquad::prelude::{draw_rectangle, Color};
 
 use super::physics::{Position, Size};
 
+#[derive(Clone)]
 pub struct Map(pub Vec<String>);
+#[derive(Clone)]
 pub struct MapColor(pub HashMap<char, Color>);
+#[derive(Clone)]
 pub struct MapRenderer(pub Map, pub MapColor);
 
 impl Map {
@@ -83,11 +86,7 @@ pub fn map_renderer_system(world: &mut World) {
             .0
             .iter()
             .enumerate()
-            .flat_map(|(y, s)| {
-                s.chars()
-                    .enumerate()
-                    .map(move |(x, c)| (x, y, c))
-            })
+            .flat_map(|(y, s)| s.chars().enumerate().map(move |(x, c)| (x, y, c)))
             .map(|(x, y, c)| (x as f32, y as f32, *renderer.1.get(&c).unwrap()))
             .for_each(|(x, y, c)| {
                 draw_rectangle(

@@ -1,6 +1,8 @@
 use macroquad::prelude::*;
 
-pub async fn menu() {
+use crate::exit_modes::ExitMode;
+
+pub async fn menu() -> ExitMode {
     loop {
         clear_background(BLACK);
 
@@ -16,7 +18,9 @@ pub async fn menu() {
         );
 
         if is_key_pressed(KeyCode::Space) {
-            break;
+            break ExitMode::NewGame;
+        } else if is_key_pressed(KeyCode::Escape) {
+            break ExitMode::Quit;
         }
 
         next_frame().await

@@ -1,27 +1,22 @@
-use std::collections::HashMap;
-
 use hecs::World;
 use macroquad::prelude::*;
 
 use crate::exit_modes::ExitMode;
-use crate::systems::{map_renderer, physics, player_control};
+use crate::systems::{bullet, fire_control, map_renderer, physics, player_control, rect_renderer};
 
 pub async fn game() -> ExitMode {
     let mut world = World::new();
 
-    let mut map_color = HashMap::new();
-    map_color.insert(' ', Color::from_rgba(0, 0, 0, 0));
-    map_color.insert('#', RED);
-
     let player = world.spawn((
-        player_control::PlayerControl(10.),
-        map_renderer::MapRenderer(
-            vec!["  #  ", " ### ", "#####"].into(),
-            vec![(' ', Color::from_rgba(0, 0, 0, 0)), ('#', RED)].into(),
+        player_control::PlayerControl::new(10.),
+        fire_control::FireControl::new(30),
+        map_renderer::MapRenderer::new(
+            vec!["  @  ", " ### ", "#####"].into(),
+            vec![(' ', Color::from_rgba(0, 0, 0, 0)), ('#', RED), ('@', BLUE)].into(),
         ),
-        physics::Position(screen_width() / 2. - 15., screen_height() - 50.),
-        physics::Size(30., 30.),
-        physics::Velocity(0., 0.),
+        physics::Position::new(screen_width() / 2. - 15., screen_height() - 50.),
+        physics::Size::new(30., 30.),
+        physics::Velocity::new(0., 0.),
     ));
 
     loop {
@@ -30,7 +25,12 @@ pub async fn game() -> ExitMode {
         }
 
         player_control::player_system(&mut world, &player);
+        fire_control::fire_control_system(&mut world, &player);
+
+        bullet::bullet_system(&mut world);
+
         physics::velocity_system(&mut world);
+        rect_renderer::rect_renderer_system(&mut world);
         map_renderer::map_renderer_system(&mut world);
 
         next_frame().await;

@@ -3,11 +3,11 @@ use std::ops::{Add, AddAssign, Sub, SubAssign};
 use hecs::World;
 
 #[derive(Clone, Debug)]
-pub struct Position(f32, f32);
+pub struct Position(pub f32, pub f32);
 #[derive(Clone, Debug)]
-pub struct Size(f32, f32);
+pub struct Size(pub f32, pub f32);
 #[derive(Clone, Debug)]
-pub struct Velocity(f32, f32);
+pub struct Velocity(pub f32, pub f32);
 
 impl Position {
     pub fn new(x: f32, y: f32) -> Self {

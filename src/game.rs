@@ -4,7 +4,7 @@ use macroquad::prelude::*;
 use crate::exit_modes::ExitMode;
 use crate::systems::{
     animated_map_renderer, bullet, fire_control, life, map_renderer, path_follower, physics,
-    player_control, rect_renderer, take_bullet_damage,
+    player_control, rect_renderer, take_bullet_damage, enemy_fire
 };
 
 pub async fn game() -> ExitMode {
@@ -49,6 +49,7 @@ pub async fn game() -> ExitMode {
         take_bullet_damage::TakeBulletDamage::new(Box::new(move |_w, _e| {
             println!("Touched !");
         })),
+        enemy_fire::EnemyFire::new(20..30),
         physics::Position::new(100., 100.),
         physics::Size::new(35., 35.),
         physics::Velocity::new(0., 0.),
@@ -67,6 +68,7 @@ pub async fn game() -> ExitMode {
         bullet::bullet_system(&mut world);
         life::life_system(&mut world);
         take_bullet_damage::take_bullet_damage_system(&mut world);
+        enemy_fire::enemy_fire_system(&mut world);
 
         physics::velocity_system(&mut world);
         path_follower::path_follower_system(&mut world);

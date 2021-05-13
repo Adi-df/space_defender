@@ -6,6 +6,7 @@ use super::{
     physics::{Position, Size},
 };
 
+#[derive(Clone)]
 pub struct AnimatedMapRenderer(pub Vec<(Map, u32)>, MapColor, u32);
 
 impl AnimatedMapRenderer {

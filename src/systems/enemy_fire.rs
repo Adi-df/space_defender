@@ -9,6 +9,7 @@ use super::{
     rect_renderer::RectRenderer,
 };
 
+#[derive(Clone)]
 pub struct EnemyFire(pub Range<u16>, u16);
 
 impl EnemyFire {

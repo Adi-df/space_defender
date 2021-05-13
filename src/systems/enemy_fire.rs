@@ -3,7 +3,11 @@ use std::ops::Range;
 use hecs::World;
 use macroquad::{prelude::RED, rand::gen_range};
 
-use super::{bullet::Bullet, physics::{Position, Size, Velocity}, rect_renderer::RectRenderer};
+use super::{
+    bullet::Bullet,
+    physics::{Position, Size, Velocity},
+    rect_renderer::RectRenderer,
+};
 
 pub struct EnemyFire(pub Range<u16>, u16);
 
@@ -45,7 +49,7 @@ pub fn enemy_fire_system(world: &mut World) {
                 RectRenderer::new(RED),
                 Position::new(pos.0 + size.0 / 2., pos.1 + size.1),
                 Size(5., 5.),
-                Velocity(0., 5.)
+                Velocity(0., 5.),
             )
         })
         .collect::<Vec<(Bullet, RectRenderer, Position, Size, Velocity)>>();

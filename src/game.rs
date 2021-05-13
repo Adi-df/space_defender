@@ -3,8 +3,8 @@ use macroquad::prelude::*;
 
 use crate::exit_modes::ExitMode;
 use crate::systems::{
-    animated_map_renderer, bullet, fire_control, life, map_renderer, path_follower, physics,
-    player_control, rect_renderer, take_bullet_damage, enemy_fire
+    animated_map_renderer, bullet, enemy_fire, fire_control, life, map_renderer, path_follower,
+    physics, player_control, rect_renderer, take_bullet_damage,
 };
 
 pub async fn game() -> ExitMode {
@@ -20,9 +20,12 @@ pub async fn game() -> ExitMode {
         take_bullet_damage::TakeBulletDamage::new(Box::new(|_w, _e| {
             println!("Oops !");
         })),
-        life::Life::new(3, Box::new(|_w, _e| {
-            panic!("Game over");
-        })),
+        life::Life::new(
+            3,
+            Box::new(|_w, _e| {
+                panic!("Game over");
+            }),
+        ),
         physics::Position::new(screen_width() / 2. - 15., screen_height() - 50.),
         physics::Size::new(30., 30.),
         physics::Velocity::new(0., 0.),

@@ -5,6 +5,7 @@ use macroquad::{prelude::RED, rand::gen_range};
 
 use super::{bullet::Bullet, physics::{Position, Size, Velocity}, rect_renderer::RectRenderer};
 
+#[derive(Clone)]
 pub struct EnemyFire(pub Range<u16>, u16);
 
 impl EnemyFire {

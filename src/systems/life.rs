@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use hecs::{Entity, World};
 
+#[derive(Clone)]
 pub struct Life {
     pub life: u16,
     death: Arc<Box<dyn Send + Sync + 'static + Fn(&mut World, &Entity)>>,

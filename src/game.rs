@@ -1,4 +1,4 @@
-use hecs::{Entity, World};
+use hecs::World;
 use macroquad::prelude::*;
 
 use crate::exit_modes::ExitMode;
@@ -22,7 +22,7 @@ pub async fn game() -> ExitMode {
         physics::Velocity::new(0., 0.),
     ));
 
-    let ennemy = world.spawn((
+    let _ennemy = world.spawn((
         animated_map_renderer::AnimatedMapRenderer::new(
             vec![
                 (vec![" ### ", "#@#@#", "#####", "&   &", " & & "].into(), 5),
@@ -42,11 +42,11 @@ pub async fn game() -> ExitMode {
         ),
         life::Life::new(
             5,
-            Box::new(move |w: &mut World, e: &Entity| {
+            Box::new(move |_w, _e| {
                 println!("Death !");
             }),
         ),
-        take_bullet_damage::TakeBulletDamage::new(Box::new(move |w, e| {
+        take_bullet_damage::TakeBulletDamage::new(Box::new(move |_w, _e| {
             println!("Touched !");
         })),
         physics::Position::new(100., 100.),

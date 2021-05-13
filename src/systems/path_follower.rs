@@ -17,7 +17,7 @@ pub fn path_follower_system(world: &mut World) {
         &mut physics::Velocity,
     )>() {
         let target = path.1[path.2];
-        if (target.0 - pos.0).abs() < f32::EPSILON && (target.1 - pos.1).abs() < f32::EPSILON {
+        if (target.0 - pos.0).abs() < path.0 && (target.1 - pos.1).abs() < path.0 {
             *vel = physics::Velocity::new(0., 0.);
             path.2 += 1;
             if path.2 == path.1.len() {

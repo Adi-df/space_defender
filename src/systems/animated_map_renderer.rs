@@ -44,7 +44,7 @@ pub fn animated_map_renderer_system(world: &mut World) {
                 .0
                 .iter()
                 .fold(0, |f, a| if a.len() > f { a.len() } else { f }) as f32,
-            renderer.0.len() as f32,
+            renderer.0[frame].0.len() as f32,
         );
         let cell_size = (size.0 / max_size.0, size.1 / max_size.1);
 

@@ -13,11 +13,13 @@ pub struct MapColor(pub HashMap<char, Color>);
 pub struct MapRenderer(pub Map, pub MapColor);
 
 impl Map {
+    #[allow(dead_code)]
     pub fn new(map: Vec<String>) -> Self {
         Self(map)
     }
 }
 impl MapColor {
+    #[allow(dead_code)]
     pub fn new(map_color: HashMap<char, Color>) -> Self {
         Self(map_color)
     }

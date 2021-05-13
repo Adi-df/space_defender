@@ -10,3 +10,4 @@ pub mod life;
 pub mod path_follower;
 pub mod physics;
 pub mod player_control;
+pub mod take_bullet_damage;

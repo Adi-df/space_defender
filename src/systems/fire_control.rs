@@ -25,7 +25,7 @@ pub fn fire_control_system(world: &mut World, player: &Entity) {
         };
 
         if is_key_pressed(KeyCode::Space) && fire.1 == 0 {
-            Some(physics::Position::new(pos.0 + size.0 / 2., pos.1 - 5.))
+            Some(physics::Position::new(pos.0 + size.0 / 2., pos.1 - 6.))
         } else {
             None
         }

@@ -48,10 +48,10 @@ pub fn take_bullet_damage_system(world: &mut World) {
                             (pos.0, pos.1, size.0, size.1),
                         )
                 })
-                .map(|(e, _, _)| e.clone())
+                .map(|(e, _, _)| *e)
                 .collect::<Vec<Entity>>();
 
-            if touching.len() > 0 {
+            if !touching.is_empty() {
                 Some((e, touching))
             } else {
                 None

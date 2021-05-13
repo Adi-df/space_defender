@@ -4,6 +4,7 @@ use hecs::{Entity, World};
 
 use super::{bullet, life, physics};
 
+#[derive(Clone)]
 pub struct TakeBulletDamage(Arc<Box<dyn Send + Sync + 'static + Fn(&mut World, &Entity)>>);
 
 impl TakeBulletDamage {

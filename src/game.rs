@@ -33,6 +33,36 @@ pub async fn game() -> ExitMode {
         physics::Velocity::new(0., 0.),
     ));
 
+    let mut life_display = {
+        let mut display = Vec::new();
+        display.push(world.spawn((
+            map_renderer::MapRenderer::new(
+                vec!["  &  ", " ### ", "#####"].into(),
+                vec![(' ', Color::from_rgba(0, 0, 0, 0)), ('#', RED), ('&', BLUE)].into(),
+            ),
+            physics::Position::new(10., 10.),
+            physics::Size::new(20., 20.),
+        )));
+        display.push(world.spawn((
+            map_renderer::MapRenderer::new(
+                vec!["  &  ", " ### ", "#####"].into(),
+                vec![(' ', Color::from_rgba(0, 0, 0, 0)), ('#', RED), ('&', BLUE)].into(),
+            ),
+            physics::Position::new(40., 10.),
+            physics::Size::new(20., 20.),
+        )));
+        display.push(world.spawn((
+            map_renderer::MapRenderer::new(
+                vec!["  &  ", " ### ", "#####"].into(),
+                vec![(' ', Color::from_rgba(0, 0, 0, 0)), ('#', RED), ('&', BLUE)].into(),
+            ),
+            physics::Position::new(70., 10.),
+            physics::Size::new(20., 20.),
+        )));
+        
+        display
+    };
+
     let mut next_enemy: u16 = 30;
     let new_enemy = |path_lenght: Range<u8>| {
         let mut base_ennemy = (
@@ -49,9 +79,12 @@ pub async fn game() -> ExitMode {
                 ]
                 .into(),
             ),
-            life::Life::new(1, Box::new(move |_w, _e| {
-                println!("Dead");
-            })),
+            life::Life::new(
+                1,
+                Box::new(move |_w, _e| {
+                    println!("Dead");
+                }),
+            ),
             take_bullet_damage::TakeBulletDamage::new(Box::new(move |_w, _e| {})),
             enemy_fire::EnemyFire::new(50..100),
             physics::Size::new(35., 35.),
@@ -72,8 +105,8 @@ pub async fn game() -> ExitMode {
                 .into_iter()
                 .map(|_| {
                     (
-                        gen_range(0., screen_width() - base_ennemy.4.0),
-                        gen_range(0., screen_height() / 3. - base_ennemy.4.1),
+                        gen_range(0., screen_width() - base_ennemy.4 .0),
+                        gen_range(0., screen_height() / 3. - base_ennemy.4 .1),
                     )
                 })
                 .collect(),

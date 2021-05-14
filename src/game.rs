@@ -1,4 +1,7 @@
-use std::ops::Range;
+use std::{
+    ops::Range,
+    sync::{Arc, Mutex},
+};
 
 use hecs::World;
 use macroquad::{prelude::*, rand::gen_range};
@@ -11,6 +14,8 @@ use crate::systems::{
 
 pub async fn game() -> ExitMode {
     let mut world = World::new();
+
+    let gameover = Arc::new(Mutex::new(false));
 
     let mut life_display = {
         let mut display = Vec::new();
@@ -52,12 +57,12 @@ pub async fn game() -> ExitMode {
         take_bullet_damage::TakeBulletDamage::new(Box::new(move |w, _e| {
             w.despawn(life_display.pop().unwrap()).unwrap();
         })),
-        life::Life::new(
-            3,
-            Box::new(|_w, _e| {
-                panic!("Game over");
-            }),
-        ),
+        life::Life::new(3, {
+            let gameover_clone = gameover.clone();
+            Box::new(move |_w, _e| {
+                *gameover_clone.lock().unwrap() = true;
+            })
+        }),
         physics::Position::new(screen_width() / 2. - 15., screen_height() - 50.),
         physics::Size::new(30., 30.),
         physics::Velocity::new(0., 0.),
@@ -116,6 +121,10 @@ pub async fn game() -> ExitMode {
     };
 
     loop {
+        if *gameover.lock().unwrap() {
+            break;
+        }
+
         clear_background(BLACK);
 
         if is_key_pressed(KeyCode::Escape) {

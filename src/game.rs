@@ -12,27 +12,6 @@ use crate::systems::{
 pub async fn game() -> ExitMode {
     let mut world = World::new();
 
-    let player = world.spawn((
-        player_control::PlayerControl::new(10.),
-        fire_control::FireControl::new(30),
-        map_renderer::MapRenderer::new(
-            vec!["  &  ", " ### ", "#####"].into(),
-            vec![(' ', Color::from_rgba(0, 0, 0, 0)), ('#', RED), ('&', BLUE)].into(),
-        ),
-        take_bullet_damage::TakeBulletDamage::new(Box::new(|_w, _e| {
-            println!("Oops !");
-        })),
-        life::Life::new(
-            3,
-            Box::new(|_w, _e| {
-                panic!("Game over");
-            }),
-        ),
-        physics::Position::new(screen_width() / 2. - 15., screen_height() - 50.),
-        physics::Size::new(30., 30.),
-        physics::Velocity::new(0., 0.),
-    ));
-
     let mut life_display = {
         let mut display = Vec::new();
         display.push(world.spawn((
@@ -59,9 +38,30 @@ pub async fn game() -> ExitMode {
             physics::Position::new(70., 10.),
             physics::Size::new(20., 20.),
         )));
-        
+
         display
     };
+
+    let player = world.spawn((
+        player_control::PlayerControl::new(10.),
+        fire_control::FireControl::new(30),
+        map_renderer::MapRenderer::new(
+            vec!["  &  ", " ### ", "#####"].into(),
+            vec![(' ', Color::from_rgba(0, 0, 0, 0)), ('#', RED), ('&', BLUE)].into(),
+        ),
+        take_bullet_damage::TakeBulletDamage::new(Box::new(move |w, _e| {
+            w.despawn(life_display.pop().unwrap()).unwrap();
+        })),
+        life::Life::new(
+            3,
+            Box::new(|_w, _e| {
+                panic!("Game over");
+            }),
+        ),
+        physics::Position::new(screen_width() / 2. - 15., screen_height() - 50.),
+        physics::Size::new(30., 30.),
+        physics::Velocity::new(0., 0.),
+    ));
 
     let mut next_enemy: u16 = 30;
     let new_enemy = |path_lenght: Range<u8>| {

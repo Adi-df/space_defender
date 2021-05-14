@@ -1,15 +1,15 @@
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use hecs::{Entity, World};
 
 use super::{bullet, life, physics};
 
 #[derive(Clone)]
-pub struct TakeBulletDamage(Arc<Box<dyn Send + Sync + 'static + Fn(&mut World, &Entity)>>);
+pub struct TakeBulletDamage(Arc<Mutex<Box<dyn Send + Sync + 'static + FnMut(&mut World, &Entity)>>>);
 
 impl TakeBulletDamage {
-    pub fn new(on_touch: Box<dyn Send + Sync + 'static + Fn(&mut World, &Entity)>) -> Self {
-        Self(Arc::new(on_touch))
+    pub fn new(on_touch: Box<dyn Send + Sync + 'static + FnMut(&mut World, &Entity)>) -> Self {
+        Self(Arc::new(Mutex::new(on_touch)))
     }
 }
 
@@ -69,7 +69,7 @@ pub fn take_bullet_damage_system(world: &mut World) {
                 me.1.life -= 1;
                 me.0 .0.clone()
             };
-            on_touch(world, &s);
+            on_touch.lock().unwrap()(world, &s);
         }
         b.into_iter().for_each(|e| world.despawn(e).unwrap());
     });

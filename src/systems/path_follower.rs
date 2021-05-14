@@ -26,7 +26,10 @@ pub fn path_follower_system(world: &mut World) {
         }
 
         if vel.0 == 0. && vel.1 == 0. {
-            *vel = physics::Velocity::new((path.1[path.2].0 - pos.0) / path.0, (path.1[path.2].1 - pos.1) / path.0)
+            *vel = physics::Velocity::new(
+                (path.1[path.2].0 - pos.0) / path.0,
+                (path.1[path.2].1 - pos.1) / path.0,
+            )
         }
     }
 }

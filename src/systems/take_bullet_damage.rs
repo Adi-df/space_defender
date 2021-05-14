@@ -73,6 +73,6 @@ pub fn take_bullet_damage_system(world: &mut World) {
             };
             on_touch.lock().unwrap()(world, &s);
         }
-        b.into_iter().for_each(|e| world.despawn(e).unwrap());
+        b.into_iter().for_each(|e| world.despawn(e).unwrap_or(()));
     });
 }

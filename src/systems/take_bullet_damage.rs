@@ -5,7 +5,9 @@ use hecs::{Entity, World};
 use super::{bullet, life, physics};
 
 #[derive(Clone)]
-pub struct TakeBulletDamage(Arc<Mutex<Box<dyn Send + Sync + 'static + FnMut(&mut World, &Entity)>>>);
+pub struct TakeBulletDamage(
+    Arc<Mutex<Box<dyn Send + Sync + 'static + FnMut(&mut World, &Entity)>>>,
+);
 
 impl TakeBulletDamage {
     pub fn new(on_touch: Box<dyn Send + Sync + 'static + FnMut(&mut World, &Entity)>) -> Self {

@@ -125,11 +125,11 @@ pub async fn game() -> ExitMode {
             break;
         }
 
-        clear_background(BLACK);
-
         if is_key_pressed(KeyCode::Escape) {
             break;
         }
+
+        clear_background(BLACK);
 
         next_enemy -= 1;
         if next_enemy == 0 {
@@ -156,5 +156,26 @@ pub async fn game() -> ExitMode {
         next_frame().await;
     }
 
-    ExitMode::Quit
+    loop {
+        clear_background(BLACK);
+
+        // Text
+        let text = String::from("Press [SPACE] to restart, [ESCAPE] to quit");
+        let measure = measure_text(&text, None, 30, 1.);
+        draw_text(
+            &text,
+            screen_width() / 2. - measure.width / 2.,
+            screen_height() / 2. - measure.height / 2.,
+            30.0,
+            WHITE,
+        );
+
+        if is_key_pressed(KeyCode::Space) {
+            break ExitMode::NewGame;
+        } else if is_key_pressed(KeyCode::Escape) {
+            break ExitMode::Quit;
+        }
+
+        next_frame().await
+    }
 }

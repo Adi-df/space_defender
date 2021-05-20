@@ -3,11 +3,11 @@ use macroquad::prelude::{screen_height, screen_width};
 
 use super::physics::Position;
 
-pub struct Bullet;
+pub struct Bullet(pub String);
 
 impl Bullet {
-    pub fn new() -> Self {
-        Self {}
+    pub fn new(tag: &str) -> Self {
+        Self(tag.to_owned())
     }
 }
 

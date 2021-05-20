@@ -17,32 +17,11 @@
       align-items: center;
     "
   >
-    <canvas id="glcanvas" tabindex="1"></canvas>
-    <!-- Resize canvas -->
-    <script>
-      window.onload = () => {
-        const draw_canvas = document.querySelector("#glcanvas");
-        const ratio = 3 / 4;
-
-        const resize_canvas = (w, h) => {
-          draw_canvas.setAttribute("width", w.toString());
-          draw_canvas.setAttribute("height", h.toString());
-        };
-        const on_window_resize = () =>
-          resize_canvas(
-            Math.min(window.innerWidth, window.innerHeight),
-            Math.min(window.innerWidth, window.innerHeight)
-          );
-
-        on_window_resize();
-        window.addEventListener("resize", on_window_resize);
-      };
-    </script>
+    <canvas id="glcanvas" tabindex="1" width="800px" height="600px"></canvas>
     <!-- Minified and statically hosted version of https://github.com/not-fl3/macroquad/blob/master/js/mq_js_bundle.js -->
     <script src="https://not-fl3.github.io/miniquad-samples/mq_js_bundle.js"></script>
     <script>
       load("space_defender.wasm");
     </script>
-    <!-- Your compiled wasm file -->
   </body>
 </html>

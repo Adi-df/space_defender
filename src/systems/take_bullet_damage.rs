@@ -42,13 +42,14 @@ pub fn take_bullet_damage_system(world: &mut World) {
             let touching = bullets
                 .iter()
                 .filter_map(|(b, btag, bpos, bsize)| {
-                    if in_square((bpos.0, bpos.1), (pos.0, pos.1, size.0, size.1))
+                    if (in_square((bpos.0, bpos.1), (pos.0, pos.1, size.0, size.1))
                         || in_square((bpos.0 + bsize.0, bpos.1), (pos.0, pos.1, size.0, size.1))
                         || in_square((bpos.0, bpos.1 + bsize.1), (pos.0, pos.1, size.0, size.1))
                         || in_square(
                             (bpos.0 + bsize.0, bpos.1 + bsize.1),
                             (pos.0, pos.1, size.0, size.1),
-                        ) && tag == *btag
+                        ))
+                        && tag == *btag
                     {
                         Some(*b)
                     } else {

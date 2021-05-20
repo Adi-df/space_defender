@@ -55,9 +55,12 @@ pub async fn game() -> ExitMode {
             vec!["  &  ", " ### ", "#####"].into(),
             vec![(' ', Color::from_rgba(0, 0, 0, 0)), ('#', RED), ('&', BLUE)].into(),
         ),
-        take_bullet_damage::TakeBulletDamage::new(Box::new(move |w, _e| {
-            w.despawn(life_display.pop().unwrap()).unwrap();
-        })),
+        take_bullet_damage::TakeBulletDamage::new(
+            String::from("Enemy Bullet"),
+            Box::new(move |w, _e| {
+                w.despawn(life_display.pop().unwrap()).unwrap();
+            }),
+        ),
         life::Life::new(3, {
             let gameover_clone = gameover.clone();
             Box::new(move |_w, _e| {
@@ -92,7 +95,10 @@ pub async fn game() -> ExitMode {
                     *scorecounter_clone.lock().unwrap() += 1;
                 }),
             ),
-            take_bullet_damage::TakeBulletDamage::new(Box::new(move |_w, _e| {})),
+            take_bullet_damage::TakeBulletDamage::new(
+                String::from("Player Bullet"),
+                Box::new(move |_w, _e| {}),
+            ),
             enemy_fire::EnemyFire::new(50..100),
             physics::Size::new(35., 35.),
             //Fixed

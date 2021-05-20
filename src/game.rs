@@ -16,6 +16,7 @@ pub async fn game() -> ExitMode {
     let mut world = World::new();
 
     let gameover = Arc::new(Mutex::new(false));
+    let scorecounter = Arc::new(Mutex::new(0));
 
     let mut life_display = {
         let mut display = Vec::new();
@@ -70,6 +71,7 @@ pub async fn game() -> ExitMode {
 
     let mut next_enemy: u16 = 30;
     let new_enemy = |path_lenght: Range<u8>| {
+        let scorecounter_clone = scorecounter.clone();
         let mut base_ennemy = (
             animated_map_renderer::AnimatedMapRenderer::new(
                 vec![
@@ -87,7 +89,7 @@ pub async fn game() -> ExitMode {
             life::Life::new(
                 1,
                 Box::new(move |_w, _e| {
-                    println!("Dead");
+                    *scorecounter_clone.lock().unwrap() += 1;
                 }),
             ),
             take_bullet_damage::TakeBulletDamage::new(Box::new(move |_w, _e| {})),
@@ -120,13 +122,13 @@ pub async fn game() -> ExitMode {
         base_ennemy
     };
 
-    loop {
+    let score = loop {
         if *gameover.lock().unwrap() {
-            break;
+            break *scorecounter.lock().unwrap();
         }
 
         if is_key_pressed(KeyCode::Escape) {
-            break;
+            break *scorecounter.lock().unwrap();
         }
 
         clear_background(BLACK);
@@ -154,7 +156,7 @@ pub async fn game() -> ExitMode {
         animated_map_renderer::animated_map_renderer_system(&mut world);
 
         next_frame().await;
-    }
+    };
 
     loop {
         clear_background(BLACK);

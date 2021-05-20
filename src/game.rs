@@ -1,7 +1,4 @@
-use std::{
-    iter,
-    sync::{Arc, Mutex},
-};
+use std::sync::{Arc, Mutex};
 
 use hecs::{EntityBuilder, World};
 use macroquad::{prelude::*, rand::gen_range};
@@ -74,47 +71,47 @@ pub async fn game() -> ExitMode {
 
     let mut next_enemy: u16 = 30;
     let new_enemy = || {
-        let mut types: Vec<Box<dyn FnMut() -> EntityBuilder>> = vec![Box::new(|| {
-            let mut enemy = EntityBuilder::new();
+        let mut types: Vec<Box<dyn FnMut() -> EntityBuilder>> = vec![
+            Box::new(|| {
+                let mut enemy = EntityBuilder::new();
 
-            enemy
-                // Dynamic modified by Path
-                .add(physics::Position::new(20., 20.))
-                .add(physics::Velocity::new(0., 0.))
-                // Rendering
-                .add(physics::Size::new(35., 35.))
-                .add(animated_map_renderer::AnimatedMapRenderer::new(
-                    vec![
-                        (vec![" ### ", "#@#@#", "#####", "&   &", " & & "].into(), 5),
-                        (vec![" ### ", "#@#@#", "#####", "&   &", "&   &"].into(), 5),
-                    ],
-                    vec![
-                        (' ', Color::from_rgba(0, 0, 0, 0)),
-                        ('#', RED),
-                        ('@', YELLOW),
-                        ('&', BLUE),
-                    ]
-                    .into(),
-                ))
-                // Life & Fire
-                .add({
-                    let scorecounter_clone = scorecounter.clone();
-                    life::Life::new(
-                        1,
-                        Box::new(move |_w, _e| {
-                            *scorecounter_clone.lock().unwrap() += 1;
-                        }),
-                    )
-                })
-                .add(take_bullet_damage::TakeBulletDamage::new(
-                    String::from("Player Bullet"),
-                    Box::new(move |_w, _e| {}),
-                ))
-                .add(enemy_fire::EnemyFire::new(20..100))
-                // Path
-                .add(path_follower::PathFollower::new(
-                    40.,
-                    iter::repeat(
+                enemy
+                    // Dynamic modified by Path
+                    .add(physics::Position::new(0., 0.))
+                    .add(physics::Velocity::new(0., 0.))
+                    // Rendering
+                    .add(physics::Size::new(35., 35.))
+                    .add(animated_map_renderer::AnimatedMapRenderer::new(
+                        vec![
+                            (vec![" ### ", "#@#@#", "#####", "&   &", " & & "].into(), 5),
+                            (vec![" ### ", "#@#@#", "#####", "&   &", "&   &"].into(), 5),
+                        ],
+                        vec![
+                            (' ', Color::from_rgba(0, 0, 0, 0)),
+                            ('#', RED),
+                            ('@', YELLOW),
+                            ('&', BLUE),
+                        ]
+                        .into(),
+                    ))
+                    // Life & Fire
+                    .add({
+                        let scorecounter_clone = scorecounter.clone();
+                        life::Life::new(
+                            1,
+                            Box::new(move |_w, _e| {
+                                *scorecounter_clone.lock().unwrap() += 1;
+                            }),
+                        )
+                    })
+                    .add(take_bullet_damage::TakeBulletDamage::new(
+                        String::from("Player Bullet"),
+                        Box::new(move |_w, _e| {}),
+                    ))
+                    .add(enemy_fire::EnemyFire::new(20..100))
+                    // Path
+                    .add(path_follower::PathFollower::new(
+                        40.,
                         vec![
                             (20., gen_range(0., screen_height() / 3.)),
                             (
@@ -122,14 +119,70 @@ pub async fn game() -> ExitMode {
                                 gen_range(0., screen_height() / 3.),
                             ),
                         ]
-                        .into_iter(),
-                    )
-                    .take(4)
-                    .flatten()
-                    .collect(),
-                ));
-            enemy
-        })];
+                        .into_iter()
+                        .cycle()
+                        .take(4)
+                        .collect(),
+                    ));
+                enemy
+            }),
+            Box::new(|| {
+                let mut enemy = EntityBuilder::new();
+
+                let radius = 100.;
+                let center = (
+                    gen_range(0. + radius, screen_width() - 35. - radius),
+                    gen_range(0. + radius, screen_height() / 2. - 35. - radius),
+                );
+
+                enemy
+                    // Dynamic modified by Path
+                    .add(physics::Position::new(0., 0.))
+                    .add(physics::Velocity::new(0., 0.))
+                    // Rendering
+                    .add(physics::Size::new(35., 35.))
+                    .add(animated_map_renderer::AnimatedMapRenderer::new(
+                        vec![
+                            (vec![" ### ", "#@#@#", "#####", "&   &", " & & "].into(), 5),
+                            (vec![" ### ", "#@#@#", "#####", "&   &", "&   &"].into(), 5),
+                        ],
+                        vec![
+                            (' ', Color::from_rgba(0, 0, 0, 0)),
+                            ('#', Color::from_rgba(169, 77, 238, 255)),
+                            ('@', Color::from_rgba(37, 200, 53, 255)),
+                            ('&', Color::from_rgba(232, 255, 121, 255)),
+                        ]
+                        .into(),
+                    ))
+                    // Life & Fire
+                    .add({
+                        let scorecounter_clone = scorecounter.clone();
+                        life::Life::new(
+                            1,
+                            Box::new(move |_w, _e| {
+                                *scorecounter_clone.lock().unwrap() += 1;
+                            }),
+                        )
+                    })
+                    .add(take_bullet_damage::TakeBulletDamage::new(
+                        String::from("Player Bullet"),
+                        Box::new(move |_w, _e| {}),
+                    ))
+                    .add(enemy_fire::EnemyFire::new(20..100))
+                    // Path
+                    .add(path_follower::PathFollower::new(
+                        40.,
+                        vec![
+                            (center.0 - radius, center.1),
+                            (center.0, center.1 + radius),
+                            (center.0 + radius, center.1),
+                            (center.0, center.1 - radius),
+                        ],
+                    ));
+
+                enemy
+            }),
+        ];
 
         let selected = gen_range(0, types.len());
         types[selected]()

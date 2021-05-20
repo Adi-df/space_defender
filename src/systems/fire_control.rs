@@ -31,7 +31,7 @@ pub fn fire_control_system(world: &mut World, player: &Entity) {
         }
     } {
         world.spawn((
-            bullet::Bullet::new(),
+            bullet::Bullet::new("Player Bullet"),
             rect_renderer::RectRenderer::new(GREEN),
             pos,
             physics::Size(5., 5.),

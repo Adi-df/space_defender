@@ -16,6 +16,7 @@ pub async fn game() -> ExitMode {
     let mut world = World::new();
 
     let gameover = Arc::new(Mutex::new(false));
+    let scorecounter = Arc::new(Mutex::new(0));
 
     let mut life_display = {
         let mut display = Vec::new();
@@ -54,9 +55,12 @@ pub async fn game() -> ExitMode {
             vec!["  &  ", " ### ", "#####"].into(),
             vec![(' ', Color::from_rgba(0, 0, 0, 0)), ('#', RED), ('&', BLUE)].into(),
         ),
-        take_bullet_damage::TakeBulletDamage::new(Box::new(move |w, _e| {
-            w.despawn(life_display.pop().unwrap()).unwrap();
-        })),
+        take_bullet_damage::TakeBulletDamage::new(
+            String::from("Enemy Bullet"),
+            Box::new(move |w, _e| {
+                w.despawn(life_display.pop().unwrap()).unwrap();
+            }),
+        ),
         life::Life::new(3, {
             let gameover_clone = gameover.clone();
             Box::new(move |_w, _e| {
@@ -70,6 +74,7 @@ pub async fn game() -> ExitMode {
 
     let mut next_enemy: u16 = 30;
     let new_enemy = |path_lenght: Range<u8>| {
+        let scorecounter_clone = scorecounter.clone();
         let mut base_ennemy = (
             animated_map_renderer::AnimatedMapRenderer::new(
                 vec![
@@ -87,10 +92,13 @@ pub async fn game() -> ExitMode {
             life::Life::new(
                 1,
                 Box::new(move |_w, _e| {
-                    println!("Dead");
+                    *scorecounter_clone.lock().unwrap() += 1;
                 }),
             ),
-            take_bullet_damage::TakeBulletDamage::new(Box::new(move |_w, _e| {})),
+            take_bullet_damage::TakeBulletDamage::new(
+                String::from("Player Bullet"),
+                Box::new(move |_w, _e| {}),
+            ),
             enemy_fire::EnemyFire::new(50..100),
             physics::Size::new(35., 35.),
             //Fixed
@@ -120,16 +128,16 @@ pub async fn game() -> ExitMode {
         base_ennemy
     };
 
-    loop {
+    let score = loop {
         if *gameover.lock().unwrap() {
-            break;
+            break *scorecounter.lock().unwrap();
+        }
+
+        if is_key_pressed(KeyCode::Escape) {
+            break *scorecounter.lock().unwrap();
         }
 
         clear_background(BLACK);
-
-        if is_key_pressed(KeyCode::Escape) {
-            break;
-        }
 
         next_enemy -= 1;
         if next_enemy == 0 {
@@ -154,7 +162,39 @@ pub async fn game() -> ExitMode {
         animated_map_renderer::animated_map_renderer_system(&mut world);
 
         next_frame().await;
-    }
+    };
 
-    ExitMode::Quit
+    loop {
+        clear_background(BLACK);
+
+        // Text Display
+
+        let text = format!("Gameover! Your score was : {}", score);
+        let measure = measure_text(&text, None, 30, 1.);
+        draw_text(
+            &text,
+            screen_width() / 2. - measure.width / 2.,
+            screen_height() / 2. - measure.height * 2.5,
+            30.,
+            WHITE,
+        );
+
+        let text = String::from("Press [SPACE] to restart, [ESCAPE] to quit");
+        let measure = measure_text(&text, None, 30, 1.);
+        draw_text(
+            &text,
+            screen_width() / 2. - measure.width / 2.,
+            screen_height() / 2. - measure.height / 2.,
+            30.,
+            WHITE,
+        );
+
+        if is_key_pressed(KeyCode::Space) {
+            break ExitMode::NewGame;
+        } else if is_key_pressed(KeyCode::Escape) {
+            break ExitMode::Quit;
+        }
+
+        next_frame().await
+    }
 }

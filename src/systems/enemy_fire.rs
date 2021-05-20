@@ -42,7 +42,7 @@ pub fn enemy_fire_system(world: &mut World) {
             f.1 = gen_range(f.0.start as u32, f.0.end as u32) as u16;
 
             (
-                Bullet::new(),
+                Bullet::new("Enemy Bullet"),
                 RectRenderer::new(RED),
                 Position::new(pos.0 + size.0 / 2., pos.1 + size.1),
                 Size(5., 5.),

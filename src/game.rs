@@ -75,9 +75,21 @@ pub async fn game() -> ExitMode {
             Box::new(|| {
                 let mut enemy = EntityBuilder::new();
 
+                let path: Vec<(f32, f32)> = vec![
+                    (20., gen_range(0., screen_height() / 3.)),
+                    (
+                        screen_width() - 35. - 20.,
+                        gen_range(0., screen_height() / 3.),
+                    ),
+                ]
+                .into_iter()
+                .cycle()
+                .take(4)
+                .collect();
+
                 enemy
                     // Dynamic modified by Path
-                    .add(physics::Position::new(0., 0.))
+                    .add(physics::Position::new(path[0].0, path[0].1))
                     .add(physics::Velocity::new(0., 0.))
                     // Rendering
                     .add(physics::Size::new(35., 35.))
@@ -110,20 +122,7 @@ pub async fn game() -> ExitMode {
                     ))
                     .add(enemy_fire::EnemyFire::new(20..100))
                     // Path
-                    .add(path_follower::PathFollower::new(
-                        40.,
-                        vec![
-                            (20., gen_range(0., screen_height() / 3.)),
-                            (
-                                screen_width() - 35. - 20.,
-                                gen_range(0., screen_height() / 3.),
-                            ),
-                        ]
-                        .into_iter()
-                        .cycle()
-                        .take(4)
-                        .collect(),
-                    ));
+                    .add(path_follower::PathFollower::new(40., path));
                 enemy
             }),
             Box::new(|| {
@@ -135,9 +134,16 @@ pub async fn game() -> ExitMode {
                     gen_range(0. + radius, screen_height() / 2. - 35. - radius),
                 );
 
+                let path = vec![
+                    (center.0 - radius, center.1),
+                    (center.0, center.1 + radius),
+                    (center.0 + radius, center.1),
+                    (center.0, center.1 - radius),
+                ];
+
                 enemy
                     // Dynamic modified by Path
-                    .add(physics::Position::new(0., 0.))
+                    .add(physics::Position::new(path[0].0, path[0].1))
                     .add(physics::Velocity::new(0., 0.))
                     // Rendering
                     .add(physics::Size::new(35., 35.))
@@ -170,15 +176,7 @@ pub async fn game() -> ExitMode {
                     ))
                     .add(enemy_fire::EnemyFire::new(20..100))
                     // Path
-                    .add(path_follower::PathFollower::new(
-                        40.,
-                        vec![
-                            (center.0 - radius, center.1),
-                            (center.0, center.1 + radius),
-                            (center.0 + radius, center.1),
-                            (center.0, center.1 - radius),
-                        ],
-                    ));
+                    .add(path_follower::PathFollower::new(40., path));
 
                 enemy
             }),

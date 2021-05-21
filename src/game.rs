@@ -204,6 +204,19 @@ pub async fn game() -> ExitMode {
             world.spawn(new_enemy().build());
         }
 
+        // Display score
+        {
+            let text = format!("{:0>5}", *scorecounter.lock().unwrap());
+            let measure = measure_text(&text, None, 30, 1.);
+            draw_text(
+                &text,
+                screen_width() - 10. - measure.width,
+                measure.height + 10.,
+                30.,
+                WHITE,
+            );
+        }
+
         player_control::player_system(&mut world, &player);
         fire_control::fire_control_system(&mut world, &player);
 

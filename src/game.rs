@@ -3,10 +3,10 @@ use std::sync::{Arc, Mutex};
 use hecs::{EntityBuilder, World};
 use macroquad::{prelude::*, rand::gen_range};
 
-use crate::{exit_modes::ExitMode};
+use crate::exit_modes::ExitMode;
 use crate::systems::{
-    animated_map_renderer, bullet, enemy_fire, fire_control, life, map_renderer, path_follower,
-    physics, player_control, rect_renderer, take_bullet_damage, countdown
+    animated_map_renderer, bullet, countdown, enemy_fire, fire_control, life, map_renderer,
+    path_follower, physics, player_control, rect_renderer, take_bullet_damage,
 };
 
 pub async fn game() -> ExitMode {
@@ -71,6 +71,77 @@ pub async fn game() -> ExitMode {
 
     let mut next_enemy: u16 = 30;
     let new_enemy = || {
+        let life_component = {
+            let scorecounter_clone = scorecounter.clone();
+
+            life::Life::new(
+                1,
+                Box::new(move |world, s| {
+                    *scorecounter_clone.lock().unwrap() += 1;
+
+                    let (pos, size) = {
+                        let (p, s) = world
+                            .query_one_mut::<(&physics::Position, &physics::Size)>(*s)
+                            .unwrap();
+
+                        (p.clone(), s.clone())
+                    };
+
+                    world.spawn(
+                        EntityBuilder::new()
+                            .add(animated_map_renderer::AnimatedMapRenderer::new(
+                                vec![
+                                    (
+                                        vec![
+                                            " &A@&  ", "&@AA@& ", "AABBA  ", "&ABA@& ", "@@AB@@&",
+                                            "&AA@A& ", " & &&  ",
+                                        ]
+                                        .into(),
+                                        6,
+                                    ),
+                                    (
+                                        vec![
+                                            " &A@&  ", "&@AA@& ", "AA  A  ", "&A  @& ", "@@AB@@&",
+                                            "&AA@A& ", " & &&  ",
+                                        ]
+                                        .into(),
+                                        6,
+                                    ),
+                                    (
+                                        vec![
+                                            " &A@&  ", "&    & ", "A      ", "&    & ", "@    @&",
+                                            "&AA@A& ", " & &&  ",
+                                        ]
+                                        .into(),
+                                        6,
+                                    ),
+                                    (
+                                        vec![
+                                            "       ", "       ", "       ", "       ", "      &",
+                                            "       ", "       ",
+                                        ]
+                                        .into(),
+                                        6,
+                                    ),
+                                ],
+                                vec![
+                                    (' ', Color::from_rgba(0, 0, 0, 255)),
+                                    ('&', Color::from_rgba(58, 59, 57, 255)),
+                                    ('@', Color::from_rgba(234, 154, 0, 255)),
+                                    ('A', Color::from_rgba(234, 118, 0, 255)),
+                                    ('B', Color::from_rgba(234, 70, 0, 255)),
+                                ]
+                                .into(),
+                            ))
+                            .add(countdown::Countdown::new(24))
+                            .add(pos)
+                            .add(size)
+                            .build(),
+                    );
+                }),
+            )
+        };
+
         let mut types: Vec<Box<dyn FnMut() -> EntityBuilder>> = vec![
             Box::new(|| {
                 let mut enemy = EntityBuilder::new();
@@ -107,15 +178,7 @@ pub async fn game() -> ExitMode {
                         .into(),
                     ))
                     // Life & Fire
-                    .add({
-                        let scorecounter_clone = scorecounter.clone();
-                        life::Life::new(
-                            1,
-                            Box::new(move |_w, _e| {
-                                *scorecounter_clone.lock().unwrap() += 1;
-                            }),
-                        )
-                    })
+                    .add(life_component.clone())
                     .add(take_bullet_damage::TakeBulletDamage::new(
                         String::from("Player Bullet"),
                         Box::new(move |_w, _e| {}),
@@ -161,15 +224,7 @@ pub async fn game() -> ExitMode {
                         .into(),
                     ))
                     // Life & Fire
-                    .add({
-                        let scorecounter_clone = scorecounter.clone();
-                        life::Life::new(
-                            1,
-                            Box::new(move |_w, _e| {
-                                *scorecounter_clone.lock().unwrap() += 1;
-                            }),
-                        )
-                    })
+                    .add(life_component.clone())
                     .add(take_bullet_damage::TakeBulletDamage::new(
                         String::from("Player Bullet"),
                         Box::new(move |_w, _e| {}),

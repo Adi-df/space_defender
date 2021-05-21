@@ -173,7 +173,7 @@ pub async fn game() -> ExitMode {
             WHITE,
         );
 
-        let text = String::from("Press [SPACE] to restart, [ESCAPE] to quit");
+        let text = String::from("Press [ENTER] to restart, [ESCAPE] to quit");
         let measure = measure_text(&text, None, 30, 1.);
         draw_text(
             &text,
@@ -183,7 +183,7 @@ pub async fn game() -> ExitMode {
             WHITE,
         );
 
-        if is_key_pressed(KeyCode::Space) {
+        if is_key_pressed(KeyCode::Enter) {
             break ExitMode::NewGame;
         } else if is_key_pressed(KeyCode::Escape) {
             break ExitMode::Quit;

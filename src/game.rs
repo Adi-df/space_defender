@@ -3,10 +3,10 @@ use std::sync::{Arc, Mutex};
 use hecs::{EntityBuilder, World};
 use macroquad::{prelude::*, rand::gen_range};
 
-use crate::exit_modes::ExitMode;
+use crate::{exit_modes::ExitMode};
 use crate::systems::{
     animated_map_renderer, bullet, enemy_fire, fire_control, life, map_renderer, path_follower,
-    physics, player_control, rect_renderer, take_bullet_damage,
+    physics, player_control, rect_renderer, take_bullet_damage, countdown
 };
 
 pub async fn game() -> ExitMode {
@@ -224,6 +224,7 @@ pub async fn game() -> ExitMode {
         life::life_system(&mut world);
         take_bullet_damage::take_bullet_damage_system(&mut world);
         enemy_fire::enemy_fire_system(&mut world);
+        countdown::countdown_system(&mut world);
 
         physics::velocity_system(&mut world);
         path_follower::path_follower_system(&mut world);

@@ -5,8 +5,8 @@ use macroquad::{prelude::*, rand::gen_range};
 
 use crate::exit_modes::ExitMode;
 use crate::systems::{
-    animated_map_renderer, bullet, enemy_fire, fire_control, life, map_renderer, path_follower,
-    physics, player_control, rect_renderer, take_bullet_damage,
+    animated_map_renderer, bullet, countdown, enemy_fire, fire_control, life, map_renderer,
+    path_follower, physics, player_control, rect_renderer, take_bullet_damage,
 };
 
 pub async fn game() -> ExitMode {
@@ -71,6 +71,77 @@ pub async fn game() -> ExitMode {
 
     let mut next_enemy: u16 = 30;
     let new_enemy = || {
+        let life_component = {
+            let scorecounter_clone = scorecounter.clone();
+
+            life::Life::new(
+                1,
+                Box::new(move |world, s| {
+                    *scorecounter_clone.lock().unwrap() += 1;
+
+                    let (pos, size) = {
+                        let (p, s) = world
+                            .query_one_mut::<(&physics::Position, &physics::Size)>(*s)
+                            .unwrap();
+
+                        (p.clone(), s.clone())
+                    };
+
+                    world.spawn(
+                        EntityBuilder::new()
+                            .add(animated_map_renderer::AnimatedMapRenderer::new(
+                                vec![
+                                    (
+                                        vec![
+                                            " &A@&  ", "&@AA@& ", "AABBA  ", "&ABA@& ", "@@AB@@&",
+                                            "&AA@A& ", " & &&  ",
+                                        ]
+                                        .into(),
+                                        6,
+                                    ),
+                                    (
+                                        vec![
+                                            " &A@&  ", "&@AA@& ", "AA  A  ", "&A  @& ", "@@AB@@&",
+                                            "&AA@A& ", " & &&  ",
+                                        ]
+                                        .into(),
+                                        6,
+                                    ),
+                                    (
+                                        vec![
+                                            " &A@&  ", "&    & ", "A      ", "&    & ", "@    @&",
+                                            "&AA@A& ", " & &&  ",
+                                        ]
+                                        .into(),
+                                        6,
+                                    ),
+                                    (
+                                        vec![
+                                            "       ", "       ", "       ", "       ", "      &",
+                                            "       ", "       ",
+                                        ]
+                                        .into(),
+                                        6,
+                                    ),
+                                ],
+                                vec![
+                                    (' ', Color::from_rgba(0, 0, 0, 255)),
+                                    ('&', Color::from_rgba(58, 59, 57, 255)),
+                                    ('@', Color::from_rgba(234, 154, 0, 255)),
+                                    ('A', Color::from_rgba(234, 118, 0, 255)),
+                                    ('B', Color::from_rgba(234, 70, 0, 255)),
+                                ]
+                                .into(),
+                            ))
+                            .add(countdown::Countdown::new(24))
+                            .add(pos)
+                            .add(size)
+                            .build(),
+                    );
+                }),
+            )
+        };
+
         let mut types: Vec<Box<dyn FnMut() -> EntityBuilder>> = vec![
             Box::new(|| {
                 let mut enemy = EntityBuilder::new();
@@ -107,15 +178,7 @@ pub async fn game() -> ExitMode {
                         .into(),
                     ))
                     // Life & Fire
-                    .add({
-                        let scorecounter_clone = scorecounter.clone();
-                        life::Life::new(
-                            1,
-                            Box::new(move |_w, _e| {
-                                *scorecounter_clone.lock().unwrap() += 1;
-                            }),
-                        )
-                    })
+                    .add(life_component.clone())
                     .add(take_bullet_damage::TakeBulletDamage::new(
                         String::from("Player Bullet"),
                         Box::new(move |_w, _e| {}),
@@ -161,15 +224,7 @@ pub async fn game() -> ExitMode {
                         .into(),
                     ))
                     // Life & Fire
-                    .add({
-                        let scorecounter_clone = scorecounter.clone();
-                        life::Life::new(
-                            1,
-                            Box::new(move |_w, _e| {
-                                *scorecounter_clone.lock().unwrap() += 1;
-                            }),
-                        )
-                    })
+                    .add(life_component.clone())
                     .add(take_bullet_damage::TakeBulletDamage::new(
                         String::from("Player Bullet"),
                         Box::new(move |_w, _e| {}),
@@ -204,6 +259,19 @@ pub async fn game() -> ExitMode {
             world.spawn(new_enemy().build());
         }
 
+        // Display score
+        {
+            let text = format!("{:0>5}", *scorecounter.lock().unwrap());
+            let measure = measure_text(&text, None, 30, 1.);
+            draw_text(
+                &text,
+                screen_width() - 10. - measure.width,
+                measure.height + 10.,
+                30.,
+                WHITE,
+            );
+        }
+
         player_control::player_system(&mut world, &player);
         fire_control::fire_control_system(&mut world, &player);
 
@@ -211,6 +279,7 @@ pub async fn game() -> ExitMode {
         life::life_system(&mut world);
         take_bullet_damage::take_bullet_damage_system(&mut world);
         enemy_fire::enemy_fire_system(&mut world);
+        countdown::countdown_system(&mut world);
 
         physics::velocity_system(&mut world);
         path_follower::path_follower_system(&mut world);
@@ -237,7 +306,7 @@ pub async fn game() -> ExitMode {
             WHITE,
         );
 
-        let text = String::from("Press [SPACE] to restart, [ESCAPE] to quit");
+        let text = String::from("Press [ENTER] to restart, [ESCAPE] to quit");
         let measure = measure_text(&text, None, 30, 1.);
         draw_text(
             &text,
@@ -247,7 +316,7 @@ pub async fn game() -> ExitMode {
             WHITE,
         );
 
-        if is_key_pressed(KeyCode::Space) {
+        if is_key_pressed(KeyCode::Enter) {
             break ExitMode::NewGame;
         } else if is_key_pressed(KeyCode::Escape) {
             break ExitMode::Quit;

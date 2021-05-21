@@ -260,7 +260,7 @@ pub async fn game() -> ExitMode {
             WHITE,
         );
 
-        if is_key_pressed(KeyCode::Space) {
+        if is_key_pressed(KeyCode::Enter) {
             break ExitMode::NewGame;
         } else if is_key_pressed(KeyCode::Escape) {
             break ExitMode::Quit;
